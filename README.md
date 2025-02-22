@@ -30,7 +30,7 @@ pip install -e .
 ### Initialize the Client
 
 ```python
-from pihole6api.client import PiHole6Client
+from pihole6api import PiHole6Client
 client = PiHole6Client("https://your-pihole.local/", "your-password")
 ```
 
