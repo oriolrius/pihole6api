@@ -1,4 +1,4 @@
-# pihole6api
+# 🍓 pihole6api
 
 This package provides a simple, modular SDK for the PiHole 6 REST API.
 
