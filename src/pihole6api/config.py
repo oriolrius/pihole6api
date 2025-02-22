@@ -1,4 +1,5 @@
 import json
+import urllib.parse
 
 class PiHole6Configuration:
     def __init__(self, connection):
@@ -77,3 +78,49 @@ class PiHole6Configuration:
         :return: API response confirming the deletion.
         """
         return self.connection.delete(f"config/{element}/{value}")
+
+    def add_local_a_record(self, host, ip):
+        """
+        Add a local A record to Pi-hole.
+
+        :param host: The hostname (e.g., "foo.dev")
+        :param ip: The IP address (e.g., "192.168.1.1")
+        :return: API response
+        """
+        encoded_value = urllib.parse.quote(f"{ip} {host}")
+        return self.connection.put(f"config/dns/hosts/{encoded_value}")
+
+    def remove_local_a_record(self, host, ip):
+        """
+        Remove a local A record from Pi-hole.
+
+        :param host: The hostname (e.g., "foo.dev")
+        :param ip: The IP address (e.g., "192.168.1.1")
+        :return: API response
+        """
+        encoded_value = urllib.parse.quote(f"{ip} {host}")
+        return self.connection.delete(f"config/dns/hosts/{encoded_value}")
+
+    def add_local_cname(self, host, target, ttl=300):
+        """
+        Add a local CNAME record to Pi-hole.
+
+        :param host: The CNAME alias (e.g., "bar.xyz")
+        :param target: The target hostname (e.g., "foo.dev")
+        :param ttl: Time-to-live for the record (default: 300)
+        :return: API response
+        """
+        encoded_value = urllib.parse.quote(f"{host},{target},{ttl}")
+        return self.connection.put(f"config/dns/cnameRecords/{encoded_value}")
+
+    def remove_local_cname(self, host, target, ttl=300):
+        """
+        Remove a local CNAME record from Pi-hole.
+
+        :param host: The CNAME alias (e.g., "bar.xyz")
+        :param target: The target hostname (e.g., "foo.dev")
+        :param ttl: Time-to-live for the record (default: 300)
+        :return: API response
+        """
+        encoded_value = urllib.parse.quote(f"{host},{target},{ttl}")
+        return self.connection.delete(f"config/dns/cnameRecords/{encoded_value}")
