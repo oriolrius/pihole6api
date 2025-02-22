@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pihole6api"
+version = "0.1.0"
+description = "A Python API client for Pi-hole 6."
+authors = [{ name = "Shane Barbetta", email = "shane@barbetta.me" }]
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "requests>=2.25.0"
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff", "mypy"]
+
+[tool.setuptools]
+packages = ["pihole6api"]
+package-dir = { "" = "src" }
+
+[tool.setuptools.package-data]
+pihole6api = ["*.py"] 
+
+[tool.ruff]
+line-length = 100
+
+[tool.mypy]
+strict = true
