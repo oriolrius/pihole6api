@@ -2,6 +2,7 @@ import requests
 import urllib3
 from urllib.parse import urljoin
 import warnings
+import time
 
 # Suppress InsecureRequestWarning
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -25,22 +26,43 @@ class PiHole6Connection:
         self._authenticate()
 
     def _authenticate(self):
-        """Authenticate with the Pi-hole API and store session ID and CSRF token."""
+        """Authenticate with the Pi-hole API and store session ID and CSRF token.
+        
+        Retries up to three times (with a one-second pause between attempts)
+        before raising an exception.
+        """
         auth_url = urljoin(self.base_url, "auth")
         payload = {"password": self.password}
+        max_attempts = 3
+        last_exception = None
 
-        response = requests.post(auth_url, json=payload, verify=False)
-        
-        if response.status_code == 200:
-            data = response.json()
-            if "session" in data and data["session"]["valid"]:
-                self.session_id = data["session"]["sid"]
-                self.csrf_token = data["session"]["csrf"]
-                self.validity = data["session"]["validity"]
-            else:
-                raise Exception("Authentication failed: Invalid session response")
-        else:
-            raise Exception(f"Authentication failed: {response.json().get('error', {}).get('message', 'Unknown error')}")
+        for attempt in range(1, max_attempts + 1):
+            response = requests.post(auth_url, json=payload, verify=False)
+            try:
+                if response.status_code == 200:
+                    data = response.json()
+                    if "session" in data and data["session"]["valid"]:
+                        self.session_id = data["session"]["sid"]
+                        self.csrf_token = data["session"]["csrf"]
+                        self.validity = data["session"]["validity"]
+                        return  # Successful authentication
+                    else:
+                        last_exception = Exception("Authentication failed: Invalid session response")
+                else:
+                    # Try to extract an error message from the response
+                    try:
+                        error_msg = response.json().get("error", {}).get("message", "Unknown error")
+                    except (json.decoder.JSONDecodeError, ValueError):
+                        error_msg = f"HTTP {response.status_code}: {response.reason}"
+                    last_exception = Exception(f"Authentication failed: {error_msg}")
+            except Exception as e:
+                last_exception = e
+
+            if attempt < max_attempts:
+                time.sleep(1)  # Pause before retrying
+
+        # All attempts failed; raise the last captured exception.
+        raise last_exception
 
     def _get_headers(self):
         """Return headers including the authentication SID and CSRF token."""
