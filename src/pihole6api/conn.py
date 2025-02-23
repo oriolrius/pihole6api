@@ -125,3 +125,14 @@ class PiHole6Connection:
     def patch(self, endpoint, data=None):
         """Send a PATCH request."""
         return self._do_call("PATCH", endpoint, data=data)
+    
+    def exit(self):
+        """Delete the current session."""
+        response = self.delete("auth")
+
+        # Clear stored session info
+        self.session_id = None
+        self.csrf_token = None
+        self.validity = None
+
+        return response

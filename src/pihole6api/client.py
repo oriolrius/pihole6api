@@ -42,3 +42,7 @@ class PiHole6Client:
         :return: API response containing PADD summary.
         """
         return self.connection.get("padd", params={"full": str(full).lower()})
+    
+    def close_session(self):
+        """Close the Pi-hole session by calling the exit method in the connection."""
+        return self.connection.exit()
