@@ -5,7 +5,7 @@ This package provides a simple, modular SDK for the PiHole 6 REST API.
 ## Features
 
 * Automatically handles authentication and renewal
-* Gracefully error management
+* Graceful error management
 * Logically organized modules
 * Easily maintained
 
