@@ -105,7 +105,6 @@ client.actions.restart_dns()
 | `dhcp`              | Manage DHCP leases |
 | `network_info`      | View network devices, interfaces, routes |
 | `actions`           | Flush logs, restart services |
-| `padd`              | Fetch summarized data for PADD |
 
 ## License
 
