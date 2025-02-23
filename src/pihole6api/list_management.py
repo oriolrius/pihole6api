@@ -52,7 +52,7 @@ class PiHole6ListManagement:
         """
         encoded_address = urllib.parse.quote(address, safe="")
         params = {"type": list_type}
-        return self.connection.get(f"lists/{encoded_address}")
+        return self.connection.get(f"lists/{encoded_address}", params=params)
 
     def update_list(self, address, list_type=None, comment=None, groups=None, enabled=True):
         """
@@ -85,10 +85,21 @@ class PiHole6ListManagement:
         params = {"type": list_type}
         return self.connection.delete(f"lists/{encoded_address}", params=params)
 
-    def search_list(self, domain):
+    def search_list(self, domain, num=None, partial=False, debug=False):
         """
         Search for a domain in Pi-hole's lists.
 
         :param domain: Domain to search for.
+        :param num: Maximum number of results to be returned (optional).
+        :param partial: Boolean flag to enable partial matching (optional).
+        :param debug: Boolean flag to add debug information to the response (optional).
         """
-        return self.connection.get(f"search/{domain}")
+        params = {
+            "partial": str(partial).lower(),
+            "debug": str(debug).lower(),
+        }
+        if num is not None:
+            params["n"] = num
+
+        return self.connection.get(f"search/{domain}", params=params)
+

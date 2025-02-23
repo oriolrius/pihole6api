@@ -3,6 +3,7 @@ import urllib3
 from urllib.parse import urljoin
 import warnings
 import time
+import json
 
 # Suppress InsecureRequestWarning
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

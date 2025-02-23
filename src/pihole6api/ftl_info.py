@@ -62,14 +62,30 @@ class PiHole6FtlInfo:
         """Retrieve Pi-hole version details."""
         return self.connection.get("info/version")
 
-    def get_dnsmasq_logs(self):
-        """Retrieve DNS log content."""
-        return self.connection.get("logs/dnsmasq")
+    def get_dnsmasq_logs(self, next_id=None):
+        """
+        Retrieve DNS log content from the embedded DNS resolver (dnsmasq).
 
-    def get_ftl_logs(self):
-        """Retrieve FTL log content."""
-        return self.connection.get("logs/ftl")
+        :param next_id: Optional ID to fetch only new log lines since the last request.
+        """
+        params = {"nextID": next_id} if next_id is not None else {}
+        return self.connection.get("logs/dnsmasq", params=params)
 
-    def get_webserver_logs(self):
-        """Retrieve webserver log content."""
-        return self.connection.get("logs/webserver")
+
+    def get_ftl_logs(self, next_id=None):
+        """
+        Retrieve FTL log content.
+        
+        :param next_id: Optional ID to fetch only new log lines since the last request.
+        """
+        params = {"nextID": next_id} if next_id is not None else {}
+        return self.connection.get("logs/ftl", params=params)
+
+    def get_webserver_logs(self, next_id=None):
+        """
+        Retrieve webserver log content.
+        
+        :param next_id: Optional ID to fetch only new log lines since the last request.
+        """
+        params = {"nextID": next_id} if next_id is not None else {}
+        return self.connection.get("logs/webserver", params=params)
