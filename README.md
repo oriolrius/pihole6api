@@ -11,7 +11,7 @@ This package provides a simple, modular SDK for the PiHole 6 REST API.
 
 ## Installation
 
-**Install using `pip` or `pipx`:**
+**Install using `pip`:**
 
 ```bash
 pip install pihole6api
