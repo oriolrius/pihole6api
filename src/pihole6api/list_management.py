@@ -64,12 +64,12 @@ class PiHole6ListManagement:
         params = {"type": list_type} if list_type else {}
         return self.connection.get("lists", params=params)
 
-    def update_list(self, address, list_type=None, comment=None, groups=None, enabled=True):
+    def update_list(self, address, list_type, comment=None, groups=None, enabled=True):
         """
         Update an existing list.
 
         :param address: URL of the blocklist/allowlist.
-        :param list_type: Type of list ("allow" or "block") (optional).
+        :param list_type: Type of list ("allow" or "block").
         :param comment: Updated comment (optional).
         :param groups: Updated list of group IDs (optional).
         :param enabled: Whether the list is enabled (default: True).
