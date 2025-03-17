@@ -1,5 +1,6 @@
 import urllib.parse
 
+
 class PiHole6ListManagement:
     def __init__(self, connection):
         """
@@ -54,6 +55,15 @@ class PiHole6ListManagement:
         params = {"type": list_type}
         return self.connection.get(f"lists/{encoded_address}", params=params)
 
+    def get_lists(self, list_type=None):
+        """
+        Retrieve all lists or lists of a specific type.
+
+        :param list_type: The type of list ("allow" or "block") (optional).
+        """
+        params = {"type": list_type} if list_type else {}
+        return self.connection.get("lists", params=params)
+
     def update_list(self, address, list_type=None, comment=None, groups=None, enabled=True):
         """
         Update an existing list.
@@ -102,4 +112,3 @@ class PiHole6ListManagement:
             params["n"] = num
 
         return self.connection.get(f"search/{domain}", params=params)
-
