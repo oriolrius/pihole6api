@@ -41,6 +41,12 @@ class PiHole6GroupManagement:
         :param name: Name of the group to fetch.
         """
         return self.connection.get(f"groups/{name}")
+    
+    def get_groups(self):
+        """
+        Retrieve information about all groups.
+        """
+        return self.connection.get("groups")
 
     def update_group(self, name, new_name=None, comment=None, enabled=True):
         """
