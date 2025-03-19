@@ -47,6 +47,12 @@ class PiHole6ClientManagement:
         :param client: Client identifier (IP, MAC, hostname, or interface).
         """
         return self.connection.get(f"clients/{client}")
+    
+    def get_clients(self):
+        """
+        Retrieve information about all clients.
+        """
+        return self.connection.get(f"clients")
 
     def update_client(self, client, comment=None, groups=None):
         """
