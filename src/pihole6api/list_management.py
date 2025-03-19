@@ -36,8 +36,8 @@ class PiHole6ListManagement:
         """
         Delete multiple lists.
 
-        :param lists: List of dictionaries with keys "address" and "type".
-                      Example: [{"address": "https://example.com/blocklist.txt", "type": "block"}]
+        :param lists: List of dictionaries with keys "item" and "type".
+                      Example: [{"item": "https://example.com/blocklist.txt", "type": "block"}]
         """
         if not isinstance(lists, list):
             raise ValueError("lists must be a list of dictionaries.")
