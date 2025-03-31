@@ -1,3 +1,5 @@
+import warnings
+
 class PiHole6Metrics:
     def __init__(self, connection):
         """
@@ -41,11 +43,12 @@ class PiHole6Metrics:
         return self.connection.get("history/database/clients", params=params)
 
     # Query API Endpoints
-    def get_queries(self, n=100, from_ts=None, until_ts=None, upstream=None, domain=None, client=None, cursor=None):
+    def get_queries(self, length=100, from_ts=None, until_ts=None, upstream=None, domain=None, client=None, cursor=None, **kwargs):
         """
         Get query log with optional filtering parameters.
 
-        :param int n: Number of queries to retrieve (default: 100).
+        :param int length: Number of queries to retrieve (default: 100). 
+            (Note: The old parameter 'n' is deprecated and will be removed in a future version.)
         :param int from_ts: Unix timestamp to filter queries from this time onward (optional).
         :param int until_ts: Unix timestamp to filter queries up to this time (optional).
         :param str upstream: Filter queries sent to a specific upstream destination (optional).
@@ -53,18 +56,30 @@ class PiHole6Metrics:
         :param str client: Filter queries originating from a specific client (optional).
         :param str cursor: Cursor for pagination to fetch the next chunk of results (optional).
         """
+        # Check for deprecated "n" parameter
+        if "n" in kwargs:
+            warnings.warn(
+                "The 'n' parameter is deprecated; please use 'length' instead.",
+                DeprecationWarning,
+                stacklevel=2
+            )
+            length = kwargs.pop("n")
+        
+        if kwargs:
+            raise TypeError("Unexpected keyword arguments: " + ", ".join(kwargs.keys()))
+        
         params = {
-            "n": n,
+            "length": length,
             "from": from_ts,
             "until": until_ts,
             "upstream": upstream,
             "domain": domain,
             "client": client,
-            "cursor": cursor
+            "cursor": cursor,
         }
+        # Remove any parameters that are None
         params = {k: v for k, v in params.items() if v is not None}
         return self.connection.get("queries", params=params)
-
 
     def get_query_suggestions(self):
         """Get query filter suggestions"""
