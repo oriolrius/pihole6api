@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pihole6api"
-version = "0.1.8"
+version = "0.1.9"
 description = "Python API Client for Pi-hole 6"
 authors = [{name = "Shane Barbetta", email = "shane@barbetta.me"}]
 license = {text = "MIT"}
