@@ -85,3 +85,18 @@ class PiHole6DomainManagement:
         :param kind: Kind of domain ("exact" or "regex")
         """
         return self.connection.delete(f"domains/{domain_type}/{kind}/{domain}")
+
+    def get_all_domains(self):
+        """
+        Get all white and blacklisted domains
+        """
+        try:
+            # Get whiteliste domains
+            whitelist = self.connection.get("domains/allow/exact")
+            # Get blackliste domains
+            blacklist = self.connection.get("domains/deny/exact")
+
+            return {"whitelist": whitelist, "blacklist": blacklist}
+        except Exception as e:
+            print(f"Error fetching domains: {e}")
+            return None
