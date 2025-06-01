@@ -82,13 +82,15 @@ class PiHole6Connection:
                 
                 if response.status_code == 200:
                     data = response.json()
-                    if "session" in data and data["session"]["valid"]:
+                    if "session" in data and data["session"]["valid"] and data["session"]["validity"] > 0:
                         self.session_id = data["session"]["sid"]
                         self.csrf_token = data["session"]["csrf"]
                         self.validity = data["session"]["validity"]
                         logger.debug("Authentication successful")
                         return  # Successful authentication
                     else:
+                        if "session" in data and data["session"]["message"]:
+                            logger.error(data["session"]["message"])
                         last_exception = Exception("Authentication failed: Invalid session response")
                 else:
                     # Try to extract an error message from the response
