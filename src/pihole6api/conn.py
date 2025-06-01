@@ -89,13 +89,13 @@ class PiHole6Connection:
                         logger.debug("Authentication successful")
                         return  # Successful authentication
                     else:
-                        if "session" in data and data["session"]["message"]:
-                            logger.error(data["session"]["message"])
+                        if data.get("session"):
+                            logger.error(data["session"].get("message", "API failed without message"))
                         last_exception = Exception("Authentication failed: Invalid session response")
                 else:
                     # Try to extract an error message from the response
                     try:
-                        error_msg = response.json().get("error", {}).get("message", "Unknown error")
+                        error_msg = response.json().get("session", {}).get("message", "Unknown error")
                     except (json.decoder.JSONDecodeError, ValueError):
                         error_msg = f"HTTP {response.status_code}: {response.reason}"
                     last_exception = Exception(f"Authentication failed: {error_msg}")
