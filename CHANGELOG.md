@@ -19,8 +19,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Improved exception message when no password or an invalid password is supplied.
 
----
-
 ## [0.1.9] - 2025-04-17
 
 ### Added
@@ -41,8 +39,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Set `self.session.timeout` globally based on the `connection_timeout` setting.
 - Improved error handling to extract and display more detailed messages from API responses when authentication fails repeatedly.
 
----
-
 ## [0.1.8] - 2025-03-31
 
 ### Fixed
@@ -51,8 +47,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Endpoint originally used `n` as the parameter to control the number of queries returned.
   - Correct parameter is `length`.
   - For backwards compatibility, both `n` and `length` are now accepted (the `n` parameter will be removed in a future release).
-
----
 
 ## [0.1.7] - 2025-03-18
 
@@ -64,8 +58,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Docstring in `batch_delete_lists()` updated to accurately reflect the correct object parameters.
 
----
-
 ## [0.1.6] - 2025-03-16
 
 ### Added
@@ -76,15 +68,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - In `list_management`, removed the now-invalid optional `list_type` parameter from `update_list`.
 
----
-
 ## [0.1.5] - 2025-03-16
 
 ### Added
 
 - `get_lists()` method in `list_management`.
-
----
 
 ## [0.1.4] - 2025-02-22
 
@@ -106,8 +94,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Added missing `json` import in `PiHole6Connection`.
 
----
-
 ## [0.1.3] - 2025-02-22
 
 ### Fixed
@@ -116,15 +102,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Removed code that attempted to serialize non-JSON responses into JSON (which was causing secondary exceptions).
   - Added a retry mechanism to handle transient failures in authentication requests.
 
----
-
 ## [0.1.2] - 2025-02-22
 
 ### Added
 
 - `close_session()` method in the client to clean up after authentication (calling `client.close_session()` sends a DELETE request to `/auth` and allows subsequent requests to re-authenticate and create a new session).
-
----
 
 ## [0.1.1] - 2025-02-22
 
@@ -143,13 +125,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - `metrics.get_stats_recent_blocked` (added `count`)
   - `metrics.get_stats_top_clients` and `metrics.get_stats_top_domains` (added `block` and `count`)
 
----
-
 ## [0.1.0] - 2025-02-22
 
 ### Added
 - Initial release of `pihole6api`, a Python API client for Pi-hole 6.
 - Session-based authentication with automatic renewal.
 - Modular structure with separate API components.
-- Full support for Pi-hole’s v6 API, including statistics, configuration, and management.
+- Full support for Pi-hole's v6 API, including statistics, configuration, and management.
 - Graceful handling of errors.
