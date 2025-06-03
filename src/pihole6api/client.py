@@ -10,6 +10,7 @@ from .config import PiHole6Configuration
 from .network_info import PiHole6NetworkInfo
 from .actions import PiHole6Actions
 from .dhcp import PiHole6Dhcp
+import importlib.metadata
 
 class PiHole6Client:
     def __init__(self, base_url, password):
@@ -46,3 +47,17 @@ class PiHole6Client:
     def close_session(self):
         """Close the Pi-hole session by calling the exit method in the connection."""
         return self.connection.exit()
+
+    def version(self):
+        """
+        Get the project information from package metadata.
+        
+        :return: Dictionary containing version, description, and project URL
+        """
+        metadata = importlib.metadata.metadata("pihole6api")
+        
+        return {
+            "version": metadata["Version"],
+            "description": metadata["Summary"],
+            "project_url": metadata["Project-URL"]
+        }

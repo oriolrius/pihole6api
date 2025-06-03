@@ -106,6 +106,14 @@ client.actions.restart_dns()
 | `network_info`      | View network devices, interfaces, routes |
 | `actions`           | Flush logs, restart services |
 
+## Contributing
+
+Please check [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a list of changes.
+
 ## License
 
 This project is license under the [MIT license](LICENSE).
