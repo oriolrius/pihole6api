@@ -88,11 +88,36 @@ class PiHoleDockerTestManager:
                     time.sleep(self.health_check_interval)
                     continue
                 
+                # Check if Pi-hole web interface is responding
+                response = requests.get(f"{self.test_url}/admin", timeout=10)
+                if response.status_code != 200:
+                    logger.debug(f"Web interface not ready: {response.status_code}")
+                    time.sleep(self.health_check_interval)
+                    continue
+                
                 # Check if Pi-hole API is responding
-                response = requests.get(f"{self.test_url}/admin/api.php", timeout=5)
-                if response.status_code == 200:
-                    logger.info(f"Pi-hole is ready! (attempt {attempt + 1})")
-                    return True
+                api_response = requests.get(f"{self.test_url}/admin/api.php", timeout=10)
+                if api_response.status_code != 200:
+                    logger.debug(f"API not ready: {api_response.status_code}")
+                    time.sleep(self.health_check_interval)
+                    continue
+                
+                # Try to authenticate to verify API is fully functional
+                auth_response = requests.post(
+                    f"{self.test_url}/admin/api/auth",
+                    json={"password": self.test_password},
+                    timeout=10
+                )
+                
+                if auth_response.status_code == 200:
+                    auth_data = auth_response.json()
+                    if "session" in auth_data and "sid" in auth_data["session"]:
+                        logger.info(f"Pi-hole is fully ready! (attempt {attempt + 1})")
+                        return True
+                    else:
+                        logger.debug(f"Authentication response malformed: {auth_data}")
+                else:
+                    logger.debug(f"Authentication failed: {auth_response.status_code}")
                     
             except requests.exceptions.RequestException as e:
                 logger.debug(f"Health check failed on attempt {attempt + 1}: {e}")
@@ -131,8 +156,17 @@ class PiHoleDockerTestManager:
             sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
             from pihole6api import PiHole6Client
             
-            # Create client and add some test DNS records
+            # Create client and verify it works
             client = PiHole6Client(self.test_url, self.test_password)
+            
+            # Test that we can get current configuration
+            try:
+                current_records = client.local_dns.get_all_records()
+                logger.info(f"Successfully connected! Current A records: {len(current_records.get('A', {}))}, CNAME records: {len(current_records.get('CNAME', {}))}")
+            except Exception as e:
+                logger.error(f"Failed to get current DNS records: {e}")
+                client.close_session()
+                return False
             
             # Add test A records
             test_records = [
@@ -144,9 +178,9 @@ class PiHoleDockerTestManager:
             for domain, ip in test_records:
                 try:
                     result = client.local_dns.add_a_record(domain, ip)
-                    logger.info(f"Added test record: {domain} -> {ip}")
+                    logger.info(f"Added test A record: {domain} -> {ip}")
                 except Exception as e:
-                    logger.warning(f"Failed to add test record {domain}: {e}")
+                    logger.warning(f"Failed to add test A record {domain}: {e}")
             
             # Add test CNAME records
             cname_records = [
@@ -161,9 +195,20 @@ class PiHoleDockerTestManager:
                 except Exception as e:
                     logger.warning(f"Failed to add test CNAME {alias}: {e}")
             
-            client.close_session()
-            logger.info("Test data setup complete")
-            return True
+            # Verify test data was added
+            try:
+                final_records = client.local_dns.get_all_records()
+                a_count = len(final_records.get('A', {}))
+                cname_count = len(final_records.get('CNAME', {}))
+                logger.info(f"Test data setup complete. Total A records: {a_count}, CNAME records: {cname_count}")
+                
+                client.close_session()
+                return True
+                
+            except Exception as e:
+                logger.error(f"Failed to verify test data: {e}")
+                client.close_session()
+                return False
             
         except Exception as e:
             logger.error(f"Failed to setup test data: {e}")

@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   pihole-test:
-    image: pihole/pihole:2024.07.0
+    image: pihole/pihole:2025.08.0
     container_name: pihole-test
     hostname: pihole-test
     ports:
@@ -29,13 +27,6 @@ services:
     
     networks:
       - pihole-test-network
-    
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/admin/api.php"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
 networks:
   pihole-test-network:
