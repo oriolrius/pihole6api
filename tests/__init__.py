@@ -1,0 +1,1 @@
+# Tests for pihole6api library

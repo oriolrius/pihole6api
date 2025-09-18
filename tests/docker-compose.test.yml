@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  pihole-test:
+    image: pihole/pihole:2024.07.0
+    container_name: pihole-test
+    hostname: pihole-test
+    ports:
+      - "42345:80"    # Web interface and API
+      - "53535:53/tcp" # DNS TCP (different port to avoid conflicts)
+      - "53535:53/udp" # DNS UDP
+    environment:
+      # Pi-hole configuration
+      WEBPASSWORD: "test_password_123"
+      TZ: "UTC"
+      DNSMASQ_LISTENING: "all"
+      
+      # Disable some features for testing
+      PIHOLE_DNS_1: "8.8.8.8"
+      PIHOLE_DNS_2: "8.8.4.4"
+      
+      # Faster startup for testing
+      SKIPGRAVITYONBOOT: "1"
+      
+    volumes:
+      # Use tmpfs for faster testing and cleanup
+      - /tmp/pihole-test-etc:/etc/pihole:rw
+      - /tmp/pihole-test-dnsmasq:/etc/dnsmasq.d:rw
+    
+    networks:
+      - pihole-test-network
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/admin/api.php"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  pihole-test-network:
+    driver: bridge
+
+volumes:
+  pihole-test-etc:
+    driver: local
+  pihole-test-dnsmasq:
+    driver: local
