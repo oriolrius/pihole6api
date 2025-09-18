@@ -80,6 +80,20 @@ class PiHole6LocalDNS:
         :param ip: The IP address (e.g., "192.168.1.1")
         :return: API response
         """
+        # Validate IP address
+        import ipaddress
+        try:
+            ipaddress.ip_address(ip)
+        except ValueError:
+            raise ValueError(f"Invalid IP address: {ip}")
+        
+        # Validate hostname
+        if not hostname or hostname.strip() == "":
+            raise ValueError("Hostname cannot be empty")
+        
+        if ".." in hostname:
+            raise ValueError("Hostname cannot contain consecutive dots")
+        
         encoded_value = urllib.parse.quote(f"{ip} {hostname}")
         return self.connection.put(f"config/dns/hosts/{encoded_value}")
 
