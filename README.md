@@ -25,6 +25,43 @@ cd pihole6api
 pip install -e .
 ```
 
+## Development Setup
+
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management and virtual environment handling.
+
+**Prerequisites:**
+
+```bash
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+**Setup development environment:**
+
+```bash
+git clone https://github.com/sbarbett/pihole6api.git
+cd pihole6api
+uv sync  # Creates virtual environment and installs all dependencies
+```
+
+**Running tests:**
+
+```bash
+# Run all tests
+make test
+
+# Run specific test categories
+make test-auth     # Authentication tests
+make test-dns      # DNS management tests
+make test-quick    # Core tests only (excludes performance tests)
+
+# Other useful commands
+make install       # Install in development mode
+make deps          # Install dependencies
+make clean         # Clean up cache files
+make info          # Show test information
+```
+
 ## Quick Start
 
 ### Initialize the Client

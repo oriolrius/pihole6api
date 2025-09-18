@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=64", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "pihole6api"
@@ -51,8 +51,18 @@ Documentation = "https://github.com/sbarbett/pihole6api"
 Source = "https://github.com/sbarbett/pihole6api"
 Issues = "https://github.com/sbarbett/pihole6api/issues"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.hatch.build.targets.wheel]
+packages = ["src/pihole6api"]
 
-[tool.setuptools.package-dir]
-"" = "src"
+[tool.uv]
+dev-dependencies = [
+    "pytest >=6.0",
+    "pytest-cov >=3.0.0",
+    "pytest-mock >=3.6.0",
+    "coverage >=6.0",
+    "black >=22.0",
+    "isort >=5.0",
+    "flake8 >=4.0",
+    "mypy >=0.900",
+    "python-dotenv>=1.0.1",
+]

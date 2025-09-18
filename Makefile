@@ -39,36 +39,36 @@ help:
 # Test commands
 test:
 	@echo "🧪 Running complete Docker-based test suite..."
-	python run_tests_docker.py $(if $(VERBOSE),-v) $(if $(STOP_ON_FAIL),-x) $(if $(PARALLEL),-p)
+	uv run python run_tests_docker.py $(if $(VERBOSE),-v) $(if $(STOP_ON_FAIL),-x) $(if $(PARALLEL),-p)
 
 test-verbose:
 	@echo "🧪 Running tests with verbose output..."
-	python run_tests_docker.py -v $(if $(STOP_ON_FAIL),-x)
+	uv run python run_tests_docker.py -v $(if $(STOP_ON_FAIL),-x)
 
 test-quick:
 	@echo "🧪 Running core tests (excluding performance tests)..."
-	python run_tests_docker.py -k "not bulk and not perf" $(if $(VERBOSE),-v) $(if $(STOP_ON_FAIL),-x)
+	uv run python run_tests_docker.py -k "not bulk and not perf" $(if $(VERBOSE),-v) $(if $(STOP_ON_FAIL),-x)
 
 test-auth:
 	@echo "🔐 Running authentication and connection tests..."
-	python run_tests_docker.py -t test_01 $(if $(VERBOSE),-v)
+	uv run python run_tests_docker.py -t test_01 $(if $(VERBOSE),-v)
 
 test-dns:
 	@echo "📋 Running DNS management tests..."
-	python run_tests_docker.py -k "test_02" $(if $(VERBOSE),-v)
+	uv run python run_tests_docker.py -k "test_02" $(if $(VERBOSE),-v)
 
 test-perf:
 	@echo "🚀 Running performance and bulk operation tests..."
-	python run_tests_docker.py -k "bulk or perf or test_08" $(if $(VERBOSE),-v)
+	uv run python run_tests_docker.py -k "bulk or perf or test_08" $(if $(VERBOSE),-v)
 
 test-cleanup:
 	@echo "🧹 Running cleanup only..."
-	python run_tests_docker.py --cleanup-only
+	uv run python run_tests_docker.py --cleanup-only
 
 # Docker management commands  
 check-docker:
 	@echo "🐳 Checking Docker prerequisites..."
-	@python run_tests_docker.py --info
+	@uv run python run_tests_docker.py --info
 
 docker-logs:
 	@echo "📄 Showing Pi-hole container logs..."
@@ -91,12 +91,11 @@ docker-clean:
 # Development commands
 install:
 	@echo "📦 Installing pihole6api in development mode..."
-	pip install -e .
+	uv sync
 
 deps:
 	@echo "📦 Installing all dependencies..."
-	pip install -e .
-	pip install pytest>=7.0.0 requests>=2.25.0
+	uv sync
 	@echo "✅ Dependencies installed"
 
 clean:
@@ -111,29 +110,29 @@ clean:
 info:
 	@echo "📋 Test Information and Usage Examples"
 	@echo "======================================"
-	python run_tests_docker.py --info
+	uv run python run_tests_docker.py --info
 
 # Advanced test patterns
 test-integration:
 	@echo "🔄 Running integration workflow tests..."
-	python run_tests_docker.py -k "workflow or integration" $(if $(VERBOSE),-v)
+	uv run python run_tests_docker.py -k "workflow or integration" $(if $(VERBOSE),-v)
 
 test-error-handling:
 	@echo "⚠️  Running error handling and validation tests..."
-	python run_tests_docker.py -k "error or validation" $(if $(VERBOSE),-v)
+	uv run python run_tests_docker.py -k "error or validation" $(if $(VERBOSE),-v)
 
 test-export:
 	@echo "💾 Running export functionality tests..."
-	python run_tests_docker.py -k "export" $(if $(VERBOSE),-v)
+	uv run python run_tests_docker.py -k "export" $(if $(VERBOSE),-v)
 
 # Continuous Integration helpers
 ci-test:
 	@echo "🤖 Running CI test suite..."
-	python run_tests_docker.py -v --stop-on-failure
+	uv run python run_tests_docker.py -v --stop-on-failure
 
 ci-quick:
 	@echo "🤖 Running CI quick test suite..."
-	python run_tests_docker.py -k "not bulk and not perf" -v --stop-on-failure
+	uv run python run_tests_docker.py -k "not bulk and not perf" -v --stop-on-failure
 
 # Development helpers
 dev-test:
@@ -165,7 +164,8 @@ debug-docker:
 
 debug-env:
 	@echo "🔍 Environment debugging information:"
-	@echo "Python version: $(shell python --version)"
-	@echo "Pytest version: $(shell pytest --version 2>/dev/null || echo 'Not installed')"
+	@echo "Python version: $(shell uv run python --version)"
+	@echo "UV version: $(shell uv --version)"
+	@echo "Pytest version: $(shell uv run pytest --version 2>/dev/null || echo 'Not installed')"
 	@echo "Working directory: $(shell pwd)"
-	@echo "Python path: $(shell python -c 'import sys; print(sys.path[0])')"
+	@echo "Python path: $(shell uv run python -c 'import sys; print(sys.path[0])')"
