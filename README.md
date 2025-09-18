@@ -22,7 +22,7 @@ pip install pihole6api
 ```bash
 git clone https://github.com/sbarbett/pihole6api.git
 cd pihole6api
-pip install -e .
+uv sync && uv pip install -e .
 ```
 
 ## Development Setup
@@ -56,10 +56,20 @@ make test-dns      # DNS management tests
 make test-quick    # Core tests only (excludes performance tests)
 
 # Other useful commands
-make install       # Install in development mode
-make deps          # Install dependencies
+make install       # Install in development mode (uv sync)
+make deps          # Install dependencies (uv sync)
 make clean         # Clean up cache files
 make info          # Show test information
+```
+
+**Working with dependencies:**
+
+The project uses `uv.lock` to ensure reproducible builds. When adding new dependencies:
+
+```bash
+uv add package-name              # Add runtime dependency
+uv add --dev package-name        # Add development dependency
+uv sync                          # Sync environment with lock file
 ```
 
 ## Quick Start
@@ -153,4 +163,4 @@ See [CHANGELOG.md](CHANGELOG.md) for a list of changes.
 
 ## License
 
-This project is license under the [MIT license](LICENSE).
+This project is licensed under the [MIT license](LICENSE).
