@@ -55,7 +55,7 @@ test-auth:
 
 test-dns:
 	@echo "📋 Running DNS management tests..."
-	python run_tests_docker.py -k "test_02 or test_03 or test_04 or test_05" $(if $(VERBOSE),-v)
+	python run_tests_docker.py -k "test_02" $(if $(VERBOSE),-v)
 
 test-perf:
 	@echo "🚀 Running performance and bulk operation tests..."

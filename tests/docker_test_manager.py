@@ -90,21 +90,14 @@ class PiHoleDockerTestManager:
                 
                 # Check if Pi-hole web interface is responding
                 response = requests.get(f"{self.test_url}/admin", timeout=10)
-                if response.status_code != 200:
+                if response.status_code not in [200, 308]:  # 308 is redirect to /admin/
                     logger.debug(f"Web interface not ready: {response.status_code}")
-                    time.sleep(self.health_check_interval)
-                    continue
-                
-                # Check if Pi-hole API is responding
-                api_response = requests.get(f"{self.test_url}/admin/api.php", timeout=10)
-                if api_response.status_code != 200:
-                    logger.debug(f"API not ready: {api_response.status_code}")
                     time.sleep(self.health_check_interval)
                     continue
                 
                 # Try to authenticate to verify API is fully functional
                 auth_response = requests.post(
-                    f"{self.test_url}/admin/api/auth",
+                    f"{self.test_url}/api/auth",
                     json={"password": self.test_password},
                     timeout=10
                 )
