@@ -11,16 +11,45 @@ This package provides a simple, modular SDK for the PiHole 6 REST API.
 
 ## Installation
 
+### From GitHub (Recommended)
+
+**Install directly from this GitHub repository:**
+
+```bash
+# Using pip
+pip install git+https://github.com/oriolrius/pihole6api.git
+
+# Using uv (recommended)
+uv add git+https://github.com/oriolrius/pihole6api.git
+```
+
+**Install specific branch or tag:**
+
+```bash
+# Install from a specific branch
+pip install git+https://github.com/oriolrius/pihole6api.git@main
+
+# Install from a specific tag/release
+pip install git+https://github.com/oriolrius/pihole6api.git@v1.0.0
+
+# Using uv
+uv add git+https://github.com/oriolrius/pihole6api.git@main
+```
+
+### From PyPI
+
 **Install using `pip`:**
 
 ```bash
 pip install pihole6api
 ```
 
+### From Source (Development)
+
 **Install from source:**
 
 ```bash
-git clone https://github.com/sbarbett/pihole6api.git
+git clone https://github.com/oriolrius/pihole6api.git
 cd pihole6api
 uv sync && uv pip install -e .
 ```
@@ -39,7 +68,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 **Setup development environment:**
 
 ```bash
-git clone https://github.com/sbarbett/pihole6api.git
+git clone https://github.com/oriolrius/pihole6api.git
 cd pihole6api
 uv sync  # Creates virtual environment and installs all dependencies
 ```
