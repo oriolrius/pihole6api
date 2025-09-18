@@ -1,5 +1,6 @@
 import json
 import urllib.parse
+from typing import List, Dict, Optional
 
 class PiHole6Configuration:
     def __init__(self, connection):
@@ -124,3 +125,117 @@ class PiHole6Configuration:
         """
         encoded_value = urllib.parse.quote(f"{host},{target},{ttl}")
         return self.connection.delete(f"config/dns/cnameRecords/{encoded_value}")
+
+    def get_local_dns_records(self, record_type: Optional[str] = None) -> List[Dict]:
+        """
+        Retrieve all local DNS records from Pi-hole configuration.
+        
+        :param record_type: Filter by record type ('A', 'CNAME', or None for all)
+        :return: List of local DNS records
+        """
+        try:
+            config_response = self.get_config()
+            config_data = config_response.get("config", {})
+            dns_config = config_data.get("dns", {})
+            
+            # Extract A records from hosts
+            hosts = dns_config.get("hosts", [])
+            cname_records = dns_config.get("cnameRecords", [])
+            
+            all_records = []
+            
+            # Process A records if requested or no filter
+            if record_type is None or record_type.upper() == 'A':
+                for host_entry in hosts:
+                    parts = host_entry.split()
+                    if len(parts) >= 2:
+                        ip = parts[0]
+                        hostnames = parts[1:]
+                        for hostname in hostnames:
+                            all_records.append({
+                                "domain": hostname,
+                                "ip": ip,
+                                "type": "A",
+                                "raw_entry": host_entry
+                            })
+            
+            # Process CNAME records if requested or no filter
+            if record_type is None or record_type.upper() == 'CNAME':
+                for cname_entry in cname_records:
+                    parts = cname_entry.split(",")
+                    if len(parts) >= 2:
+                        source = parts[0]
+                        target = parts[1]
+                        ttl = parts[2] if len(parts) > 2 else "default"
+                        all_records.append({
+                            "domain": source,
+                            "target": target,
+                            "type": "CNAME",
+                            "ttl": ttl,
+                            "raw_entry": cname_entry
+                        })
+            
+            return all_records
+            
+        except Exception as e:
+            raise Exception(f"Error retrieving local DNS records: {e}")
+
+    def get_local_a_records(self) -> List[Dict]:
+        """
+        Retrieve only local A records from Pi-hole configuration.
+        
+        :return: List of A records
+        """
+        return self.get_local_dns_records(record_type='A')
+
+    def get_local_cname_records(self) -> List[Dict]:
+        """
+        Retrieve only local CNAME records from Pi-hole configuration.
+        
+        :return: List of CNAME records
+        """
+        return self.get_local_dns_records(record_type='CNAME')
+
+    def find_record_by_domain(self, domain: str) -> List[Dict]:
+        """
+        Find local DNS records for a specific domain.
+        
+        :param domain: Domain name to search for
+        :return: List of matching records
+        """
+        all_records = self.get_local_dns_records()
+        return [record for record in all_records if record.get('domain', '').lower() == domain.lower()]
+
+    def get_dns_statistics(self) -> Dict:
+        """
+        Get statistics about local DNS records.
+        
+        :return: Dictionary with record counts and statistics
+        """
+        all_records = self.get_local_dns_records()
+        
+        a_records = [r for r in all_records if r.get('type') == 'A']
+        cname_records = [r for r in all_records if r.get('type') == 'CNAME']
+        
+        # Get unique domains and IPs
+        unique_domains = set()
+        unique_ips = set()
+        
+        for record in a_records:
+            unique_domains.add(record.get('domain', ''))
+            unique_ips.add(record.get('ip', ''))
+        
+        for record in cname_records:
+            unique_domains.add(record.get('domain', ''))
+        
+        return {
+            "total_records": len(all_records),
+            "a_records": len(a_records),
+            "cname_records": len(cname_records),
+            "unique_domains": len(unique_domains),
+            "unique_ips": len(unique_ips),
+            "records_by_type": {
+                "A": len(a_records),
+                "CNAME": len(cname_records)
+            }
+        }

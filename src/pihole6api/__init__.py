@@ -11,6 +11,7 @@ from .network_info import PiHole6NetworkInfo
 from .ftl_info import PiHole6FtlInfo
 from .dns_control import PiHole6DnsControl
 from .client_management import PiHole6ClientManagement
+from .local_dns import PiHole6LocalDNS
 
 __all__ = [
     "PiHole6Client",
@@ -26,4 +27,5 @@ __all__ = [
     "PiHole6FtlInfo",
     "PiHole6DnsControl",
     "PiHole6ClientManagement",
+    "PiHole6LocalDNS",
 ]

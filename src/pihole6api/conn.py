@@ -119,7 +119,7 @@ class PiHole6Connection:
             self._authenticate()
 
         return {
-            "X-FTL-SID": self.session_id,
+            "sid": self.session_id,  # Fixed: Use 'sid' instead of 'X-FTL-SID'
             "X-FTL-CSRF": self.csrf_token
         }
 

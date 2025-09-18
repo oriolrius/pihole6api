@@ -86,17 +86,22 @@ class PiHole6DomainManagement:
         """
         return self.connection.delete(f"domains/{domain_type}/{kind}/{domain}")
 
-    def get_all_domains(self):
+    def get_all_domains(self, domain_type=None, kind=None):
         """
-        Get all white and blacklisted domains
+        Get all allow/deny domains (blocklist/allowlist entries).
+        
+        :param domain_type: Filter by type ("allow" or "deny", optional)
+        :param kind: Filter by kind ("exact" or "regex", optional)
+        :return: API response containing domain list entries
         """
-        try:
-            # Get whiteliste domains
-            whitelist = self.connection.get("domains/allow/exact")
-            # Get blackliste domains
-            blacklist = self.connection.get("domains/deny/exact")
-
-            return {"whitelist": whitelist, "blacklist": blacklist}
-        except Exception as e:
-            print(f"Error fetching domains: {e}")
-            return None
+        endpoint = "domains"
+        
+        # Build endpoint path based on filters
+        if domain_type:
+            endpoint += f"/{domain_type}"
+            if kind:
+                endpoint += f"/{kind}"
+        elif kind:
+            endpoint += f"/{kind}"
+        
+        return self.connection.get(endpoint)

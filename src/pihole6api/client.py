@@ -10,6 +10,7 @@ from .config import PiHole6Configuration
 from .network_info import PiHole6NetworkInfo
 from .actions import PiHole6Actions
 from .dhcp import PiHole6Dhcp
+from .local_dns import PiHole6LocalDNS
 import importlib.metadata
 
 class PiHole6Client:
@@ -34,6 +35,7 @@ class PiHole6Client:
         self.network_info = PiHole6NetworkInfo(self.connection)
         self.actions = PiHole6Actions(self.connection)
         self.dhcp = PiHole6Dhcp(self.connection)
+        self.local_dns = PiHole6LocalDNS(self.connection)
 
     def get_padd_summary(self, full=False):
         """
