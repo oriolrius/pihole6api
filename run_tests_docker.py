@@ -3,7 +3,37 @@
 Docker-based Test Runner for pihole6api.
 
 This script provides a comprehensive testing framework for the pihole6api library
-using real Pi-hole Docker containers. It handles the complete test lifecycle
+using real Pi-hole Dock    # Specify test file/pattern
+    if test_pattern:
+        if "::" in test_pattern:
+            # Full test specification (class::method) - use all test files
+            test_files_pattern = "tests/test_*.py"
+            pytest_args.extend(["-k", test_pattern, test_files_pattern])
+        else:
+            # Pattern matching across all test files
+            pytest_args.extend(["-k", test_pattern, "tests/test_*.py"])
+    else:
+        # Run all integration tests (prefer the new split files)
+        project_root = Path(__file__).parent
+        new_test_files = [
+            "tests/test_auth_connection.py",
+            "tests/test_dns_records.py", 
+            "tests/test_dns_operations.py",
+            "tests/test_validation_performance.py",
+            "tests/test_integration_workflow.py"
+        ]
+        
+        # Check if new test files exist, fallback to old file if not
+        existing_files = []
+        for test_file in new_test_files:
+            if (project_root / test_file).exists():
+                existing_files.append(test_file)
+        
+        if existing_files:
+            pytest_args.extend(existing_files)
+        else:
+            # Fallback to original file
+            pytest_args.append("tests/test_real_integration.py")ers. It handles the complete test lifecycle
 including Docker container management, test execution, and cleanup.
 
 Usage:
@@ -128,12 +158,26 @@ def setup_test_environment():
     print(f"✅ {result.stdout.strip()}")
     
     # Check if test files exist
-    test_file = project_root / "tests" / "test_real_integration.py"
-    if not test_file.exists():
-        print(f"❌ Test file not found: {test_file}")
-        return False
-    print(f"✅ Test file found: {test_file.name}")
+    test_files = [
+        "test_auth_connection.py",
+        "test_dns_records.py", 
+        "test_dns_operations.py",
+        "test_validation_performance.py",
+        "test_integration_workflow.py",
+        "test_real_integration.py"  # Keep for backwards compatibility
+    ]
     
+    found_files = []
+    for test_file_name in test_files:
+        test_file = project_root / "tests" / test_file_name
+        if test_file.exists():
+            found_files.append(test_file_name)
+    
+    if not found_files:
+        print("❌ No test files found")
+        return False
+    
+    print(f"✅ Test files found: {', '.join(found_files)}")
     print("✅ Test environment ready")
     return True
 
@@ -164,10 +208,30 @@ def run_docker_tests(test_pattern=None, verbose=False, stop_on_failure=False, pa
             # Full test specification (class::method)
             pytest_args.append(f"tests/test_real_integration.py::{test_pattern}")
         else:
-            # Partial match
-            pytest_args.extend(["-k", test_pattern, "tests/test_real_integration.py"])
+            # Pattern matching across all test files
+            pytest_args.extend(["-k", test_pattern, "tests/test_*.py"])
     else:
-        pytest_args.append("tests/test_real_integration.py")
+        # Run all integration tests (prefer the new split files)
+        project_root = Path(__file__).parent
+        new_test_files = [
+            "tests/test_auth_connection.py",
+            "tests/test_dns_records.py", 
+            "tests/test_dns_operations.py",
+            "tests/test_validation_performance.py",
+            "tests/test_integration_workflow.py"
+        ]
+        
+        # Check if new test files exist, fallback to old file if not
+        existing_files = []
+        for test_file in new_test_files:
+            if (project_root / test_file).exists():
+                existing_files.append(test_file)
+        
+        if existing_files:
+            pytest_args.extend(existing_files)
+        else:
+            # Fallback to original file
+            pytest_args.append("tests/test_real_integration.py")
     
     # Additional pytest options
     pytest_args.extend([
