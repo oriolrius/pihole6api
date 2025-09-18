@@ -12,6 +12,10 @@ import os
 import sys
 from pathlib import Path
 import logging
+from dotenv import load_dotenv
+
+# Load test environment configuration
+load_dotenv(Path(__file__).parent / ".env.test")
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -21,14 +25,16 @@ logger = logging.getLogger(__name__)
 class PiHoleDockerTestManager:
     """Manages Pi-hole Docker container for testing."""
     
-    def __init__(self, compose_file="docker-compose.test.yml"):
+    def __init__(self, compose_file=None):
+        # Load configuration from environment with fallbacks
+        compose_file = compose_file or os.getenv("PIHOLE_DOCKER_COMPOSE_FILE", "docker-compose.test.yml")
         self.compose_file = Path(__file__).parent / compose_file
-        self.container_name = "pihole-test"
-        self.test_url = "http://localhost:42345"
-        self.test_password = "test_password_123"
-        self.startup_timeout = 60
-        self.health_check_retries = 12
-        self.health_check_interval = 5
+        self.container_name = os.getenv("PIHOLE_TEST_CONTAINER_NAME", "pihole-test")
+        self.test_url = os.getenv("PIHOLE_TEST_URL", "http://localhost:42345")
+        self.test_password = os.getenv("PIHOLE_TEST_PASSWORD", "test_password_123")
+        self.startup_timeout = int(os.getenv("PIHOLE_TEST_STARTUP_TIMEOUT", "60"))
+        self.health_check_retries = int(os.getenv("PIHOLE_TEST_HEALTH_CHECK_RETRIES", "12"))
+        self.health_check_interval = int(os.getenv("PIHOLE_TEST_HEALTH_CHECK_INTERVAL", "5"))
     
     def start_container(self):
         """Start the Pi-hole test container."""
@@ -161,11 +167,15 @@ class PiHoleDockerTestManager:
                 client.close_session()
                 return False
             
-            # Add test A records
+            # Get configuration from environment
+            domain_base = os.getenv("TEST_DOMAIN_BASE", "test.local")
+            ip_base = os.getenv("TEST_IP_BASE", "192.168.99")
+            
+            # Add test A records using environment configuration
             test_records = [
-                ("server1.test.local", "192.168.99.10"),
-                ("server2.test.local", "192.168.99.11"),
-                ("nas.test.local", "192.168.99.20"),
+                (f"server1.{domain_base}", f"{ip_base}.{os.getenv('PRELOAD_SERVER1_IP', '10')}"),
+                (f"server2.{domain_base}", f"{ip_base}.{os.getenv('PRELOAD_SERVER2_IP', '11')}"),
+                (f"nas.{domain_base}", f"{ip_base}.{os.getenv('PRELOAD_NAS_IP', '20')}"),
             ]
             
             for domain, ip in test_records:
@@ -175,10 +185,10 @@ class PiHoleDockerTestManager:
                 except Exception as e:
                     logger.warning(f"Failed to add test A record {domain}: {e}")
             
-            # Add test CNAME records
+            # Add test CNAME records using environment configuration
             cname_records = [
-                ("www.test.local", "server1.test.local"),
-                ("api.test.local", "server2.test.local"),
+                (f"www.{domain_base}", f"server1.{domain_base}"),
+                (f"api.{domain_base}", f"server2.{domain_base}"),
             ]
             
             for alias, target in cname_records:

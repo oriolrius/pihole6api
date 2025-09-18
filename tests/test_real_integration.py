@@ -12,6 +12,10 @@ import sys
 import time
 import tempfile
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load test environment configuration
+load_dotenv(Path(__file__).parent / ".env.test")
 
 # Add the source directory to the path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -27,8 +31,12 @@ class TestPiHoleDockerIntegration:
     def setup_class(cls):
         """Setup Docker container before running tests."""
         cls.manager = PiHoleDockerTestManager()
-        cls.base_url = "http://localhost:42345"
-        cls.password = "test_password_123"
+        cls.base_url = os.getenv("PIHOLE_TEST_URL", "http://localhost:42345")
+        cls.password = os.getenv("PIHOLE_TEST_PASSWORD", "test_password_123")
+        
+        # Get test configuration from environment
+        cls.domain_base = os.getenv("TEST_DOMAIN_BASE", "test.local")
+        cls.ip_base = os.getenv("TEST_IP_BASE", "192.168.99")
         
         print("\n🐳 Starting Pi-hole Docker container...")
         if not cls.manager.start_container():
@@ -108,8 +116,8 @@ class TestPiHoleDockerIntegration:
         print("\n➕ Testing A record management...")
         
         client = PiHole6Client(self.base_url, self.password)
-        test_domain = "test-a-record.local"
-        test_ip = "192.168.99.100"
+        test_domain = f"test-a-record.{self.domain_base}"
+        test_ip = f"{self.ip_base}.{os.getenv('TEST_A_RECORD_IP_START', '100')}"
         
         try:
             # Get initial count
@@ -130,7 +138,7 @@ class TestPiHoleDockerIntegration:
             print(f"✅ A record added successfully: {test_domain} -> {test_ip}")
             
             # Test updating the record
-            new_ip = "192.168.99.101"
+            new_ip = f"{self.ip_base}.{os.getenv('TEST_A_RECORD_IP_UPDATE', '101')}"
             update_result = client.local_dns.update_a_record(test_domain, new_ip)
             print(f"Update A record result: {update_result}")
             
@@ -164,8 +172,8 @@ class TestPiHoleDockerIntegration:
         print("\n🔗 Testing CNAME record management...")
         
         client = PiHole6Client(self.base_url, self.password)
-        test_alias = "test-cname.local"
-        test_target = "target.local"
+        test_alias = f"test-cname.{self.domain_base}"
+        test_target = f"target.{self.domain_base}"
         
         try:
             # Get initial count
@@ -213,9 +221,9 @@ class TestPiHoleDockerIntegration:
         try:
             # Add some test data for statistics
             test_records = [
-                ("stats-test1.local", "192.168.99.201"),
-                ("stats-test2.local", "192.168.99.202"),
-                ("stats-test3.local", "192.168.99.201"),  # Same IP as test1
+                (f"stats-test1.{self.domain_base}", f"{self.ip_base}.{os.getenv('TEST_STATS_IP_1', '201')}"),
+                (f"stats-test2.{self.domain_base}", f"{self.ip_base}.{os.getenv('TEST_STATS_IP_2', '202')}"),
+                (f"stats-test3.{self.domain_base}", f"{self.ip_base}.{os.getenv('TEST_STATS_IP_1', '201')}"),  # Same IP as test1
             ]
             
             for domain, ip in test_records:
@@ -253,12 +261,13 @@ class TestPiHoleDockerIntegration:
             print("✅ Search functionality works correctly")
             
             # Test search by IP
-            ip_results = client.local_dns.get_records_by_ip("192.168.99.201")
-            print(f"Records for IP 192.168.99.201: {ip_results}")
+            test_ip = f"{self.ip_base}.{os.getenv('TEST_STATS_IP_1', '201')}"
+            ip_results = client.local_dns.get_records_by_ip(test_ip)
+            print(f"Records for IP {test_ip}: {ip_results}")
             
             assert len(ip_results) == 2  # stats-test1 and stats-test3
-            assert "stats-test1.local" in ip_results
-            assert "stats-test3.local" in ip_results
+            assert f"stats-test1.{self.domain_base}" in ip_results
+            assert f"stats-test3.{self.domain_base}" in ip_results
             
             print("✅ Search by IP works correctly")
             
@@ -377,7 +386,7 @@ class TestPiHoleDockerIntegration:
             
             for invalid_ip in invalid_ips:
                 with pytest.raises(ValueError):
-                    client.local_dns.add_a_record("test.local", invalid_ip)
+                    client.local_dns.add_a_record(f"test.{self.domain_base}", invalid_ip)
             
             print("✅ IP validation works correctly")
             
@@ -408,9 +417,12 @@ class TestPiHoleDockerIntegration:
         try:
             # Add multiple records quickly
             bulk_records = []
-            for i in range(10):
-                domain = f"bulk-test-{i}.local"
-                ip = f"192.168.99.{150 + i}"
+            bulk_count = int(os.getenv('TEST_BULK_COUNT', '10'))
+            start_ip = int(os.getenv('TEST_BULK_IP_START', '150'))
+            
+            for i in range(bulk_count):
+                domain = f"bulk-test-{i}.{self.domain_base}"
+                ip = f"{self.ip_base}.{start_ip + i}"
                 bulk_records.append((domain, ip))
             
             print(f"Adding {len(bulk_records)} records...")
@@ -503,9 +515,9 @@ class TestPiHoleDockerIntegration:
             print(f"Initial state: {initial_a_count} A records, {initial_cname_count} CNAME records")
             
             # Step 2: Add test records
-            test_domain = "workflow-test.local"
-            test_ip = "192.168.99.250"
-            test_alias = "workflow-alias.local"
+            test_domain = f"workflow-test.{self.domain_base}"
+            test_ip = f"{self.ip_base}.{os.getenv('TEST_WORKFLOW_IP', '250')}"
+            test_alias = f"workflow-alias.{self.domain_base}"
             
             client.local_dns.add_a_record(test_domain, test_ip)
             client.local_dns.add_cname_record(test_alias, test_domain)
